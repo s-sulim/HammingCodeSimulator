@@ -13,12 +13,12 @@ namespace HammingCodeSimulator
 {
     public partial class frmMain : Form
     {
-        private int[] bits;
-        private int s1;
-        private int s2;
-        private int s3;
-        private int s4;
-        private int p;
+        private bool[] bits;
+        private bool s1;
+        private bool s2;
+        private bool s3;
+        private bool s4;
+        private bool p;
 
         private enum State
         {
@@ -42,7 +42,7 @@ namespace HammingCodeSimulator
         public frmMain()
         {
             InitializeComponent();
-            bits = new int[16];
+            bits = new bool[16];
             state = State.Sending;
             this.PropertyChanged += FrmMain_PropertyChanged;
             lbdBit3Value.Click += BitValue_Click;
@@ -109,11 +109,11 @@ namespace HammingCodeSimulator
             if (state == State.Reading)
             {
                 var index = Convert.ToInt32(ErrorLabel.Tag);
-                bits[index] = Convert.ToInt32(ErrorLabel.Text);
+                bits[index] =Convert.ToBoolean(Convert.ToInt32(ErrorLabel.Text));
                 ResetColors();
                 RecalculateBits();
 
-                ErrorAddress = $"{s4}{s3}{s2}{s1}";
+                ErrorAddress = $"{s4.MakeString()}{s3.MakeString()}{s2.MakeString()}{s1.MakeString()}";
                 Color errorClr = Color.IndianRed;
 
                 switch (ErrorAddress)
@@ -192,25 +192,25 @@ namespace HammingCodeSimulator
             }
         }
 
-        private int Xor(params int[] bits2Check)
+        private bool Xor(params bool[] bits2Check)
         {
-            if (bits2Check.Where(b => b == 1).ToArray().Count() % 2 == 0)
-                return 0;
+            if (bits2Check.Where(b => b == true).ToArray().Count() % 2 == 0)
+                return false;
             else
-                return 1;
+                return true;
         }
         private void btnReset_Click(object sender, EventArgs e)
         {
             state = State.Sending;
             for (int i = 0; i < bits.Length; i++)
             {
-                bits[i] = 0;
+                bits[i] = false;
             }
-            s1 = 0;
-            s2 = 0;
-            s3 = 0;
-            s4 = 0;
-            p = 0;
+            s1 = false;
+            s2 = false;
+            s3 = false;
+            s4 = false;
+            p = false;
 
             lbdBit0Value.Text = "X";
             lbdBit1Value.Text = "X";
@@ -229,11 +229,11 @@ namespace HammingCodeSimulator
             lbdBit14Value.Text = "0";
             lbdBit15Value.Text = "0";
 
-            lbS1Value.Text = s1.ToString();
-            lbS2Value.Text = s2.ToString();
-            lbS3Value.Text = s3.ToString();
-            lbS4Value.Text = s4.ToString();
-            lbPValue.Text = p.ToString();
+            lbS1Value.Text = s1.MakeString();
+            lbS2Value.Text = s2.MakeString();
+            lbS3Value.Text = s3.MakeString();
+            lbS4Value.Text = s4.MakeString();
+            lbPValue.Text = p.MakeString();
 
             ResetColors();
 
@@ -286,23 +286,23 @@ namespace HammingCodeSimulator
         }
         private void CalculateBits()
         {
-            bits[3] = Convert.ToInt32(lbdBit3Value.Text);
-            bits[5] = Convert.ToInt32(lbdBit5Value.Text);
-            bits[6] = Convert.ToInt32(lbdBit6Value.Text);
-            bits[7] = Convert.ToInt32(lbdBit7Value.Text);
-            bits[9] = Convert.ToInt32(lbdBit9Value.Text);
-            bits[10] = Convert.ToInt32(lbdBit10Value.Text);
-            bits[11] = Convert.ToInt32(lbdBit11Value.Text);
-            bits[12] = Convert.ToInt32(lbdBit12Value.Text);
-            bits[13] = Convert.ToInt32(lbdBit13Value.Text);
-            bits[14] = Convert.ToInt32(lbdBit14Value.Text);
-            bits[15] = Convert.ToInt32(lbdBit15Value.Text);
+            bits[3] = Convert.ToBoolean(Convert.ToInt32(lbdBit3Value.Text));
+            bits[5] = Convert.ToBoolean(Convert.ToInt32(lbdBit5Value.Text));
+            bits[6] = Convert.ToBoolean(Convert.ToInt32(lbdBit6Value.Text));
+            bits[7] = Convert.ToBoolean(Convert.ToInt32(lbdBit7Value.Text));
+            bits[9] = Convert.ToBoolean(Convert.ToInt32(lbdBit9Value.Text));
+            bits[10] = Convert.ToBoolean(Convert.ToInt32(lbdBit10Value.Text));
+            bits[11] = Convert.ToBoolean(Convert.ToInt32(lbdBit11Value.Text));
+            bits[12] = Convert.ToBoolean(Convert.ToInt32(lbdBit12Value.Text));
+            bits[13] = Convert.ToBoolean(Convert.ToInt32(lbdBit13Value.Text));
+            bits[14] = Convert.ToBoolean(Convert.ToInt32(lbdBit14Value.Text));
+            bits[15] = Convert.ToBoolean(Convert.ToInt32(lbdBit15Value.Text));
 
             bits[1] = Xor(bits[3], bits[5], bits[7], bits[9], bits[11], bits[13], bits[15]); //3,5,7,9,11,13,15
             bits[2] = Xor(bits[3], bits[6], bits[7], bits[10], bits[11], bits[14], bits[15]); //3,6,7,10,11, 14 , 15
             bits[4] = Xor(bits[5], bits[6], bits[7], bits[12], bits[13], bits[14], bits[15]);
             bits[8] = Xor(bits[9], bits[10], bits[11], bits[12], bits[13], bits[14], bits[15]);
-            bits[0] = 0;
+            bits[0] = false;
             bits[0] = Xor(bits);
 
             s1 = Xor(bits[1], bits[3], bits[5], bits[7], bits[9], bits[11], bits[13], bits[15]);
@@ -311,18 +311,18 @@ namespace HammingCodeSimulator
             s4 = Xor(bits[8], bits[9], bits[10], bits[11], bits[12], bits[13], bits[14], bits[15]);
             p = Xor(bits);
 
-            lbdBit0Value.Text = bits[0].ToString();
-            lbdBit1Value.Text = bits[1].ToString();
-            lbdBit2Value.Text = bits[2].ToString();
-            lbdBit4Value.Text = bits[4].ToString();
-            lbdBit8Value.Text = bits[8].ToString();
+            lbdBit0Value.Text = bits[0].MakeString();
+            lbdBit1Value.Text = bits[1].MakeString();
+            lbdBit2Value.Text = bits[2].MakeString();
+            lbdBit4Value.Text = bits[4].MakeString();
+            lbdBit8Value.Text = bits[8].MakeString();
 
-            lbS1Value.Text = s1.ToString();
-            lbS2Value.Text = s2.ToString();
-            lbS3Value.Text = s3.ToString();
-            lbS4Value.Text = s4.ToString();
+            lbS1Value.Text = s1.MakeString();
+            lbS2Value.Text = s2.MakeString();
+            lbS3Value.Text = s3.MakeString();
+            lbS4Value.Text = s4.MakeString();
 
-            lbPValue.Text = p.ToString();
+            lbPValue.Text = p.MakeString();
         }
         private void RecalculateBits()
         {
@@ -332,11 +332,11 @@ namespace HammingCodeSimulator
             s4 = Xor(bits[8], bits[9], bits[10], bits[11], bits[12], bits[13], bits[14], bits[15]);
             p = Xor(bits);
 
-            if (s1 == 0 && s2 == 0 && s3 == 0 & s4 == 0 && p == 0)
+            if (s1 == false && s2 == false && s3 == false & s4 == false && p == false)
             {
                 pbFace.Image = Properties.Resources.happy_emoji;
             }
-            else if (s1 == 0 && s2 == 0 && s3 == 0 & s4 == 0 && p == 1)
+            else if (s1 == false && s2 == false && s3 == false & s4 == false && p == true)
             {
                 pbFace.Image = Properties.Resources.dead_emoji;
                 Color errorClr = Color.IndianRed;
@@ -356,7 +356,7 @@ namespace HammingCodeSimulator
                 tlpBit14.BackColor = errorClr;
                 tlpBit15.BackColor = errorClr;
             }
-            else if ((s1 == 1 || s2 == 1 || s3 == 1 || s4 == 1) && p == 0)
+            else if ((s1 == true || s2 == true || s3 == true || s4 == true) && p == false)
             {
                 pbFace.Image = Properties.Resources.dead_emoji;
             }
@@ -364,18 +364,18 @@ namespace HammingCodeSimulator
             {
                 pbFace.Image = Properties.Resources.shock_emoji;
             }
-            lbdBit0Value.Text = bits[0].ToString();
-            lbdBit1Value.Text = bits[1].ToString();
-            lbdBit2Value.Text = bits[2].ToString();
-            lbdBit4Value.Text = bits[4].ToString();
-            lbdBit8Value.Text = bits[8].ToString();
+            lbdBit0Value.Text = bits[0].MakeString();
+            lbdBit1Value.Text = bits[1].MakeString();
+            lbdBit2Value.Text = bits[2].MakeString();
+            lbdBit4Value.Text = bits[4].MakeString();
+            lbdBit8Value.Text = bits[8].MakeString();
 
-            lbS1Value.Text = s1.ToString();
-            lbS2Value.Text = s2.ToString();
-            lbS3Value.Text = s3.ToString();
-            lbS4Value.Text = s4.ToString();
+            lbS1Value.Text = s1.MakeString();
+            lbS2Value.Text = s2.MakeString();
+            lbS3Value.Text = s3.MakeString();
+            lbS4Value.Text = s4.MakeString();
 
-            lbPValue.Text = p.ToString();
+            lbPValue.Text = p.MakeString();
         }
 
         private void tmrFixError_Tick(object sender, EventArgs e)
@@ -449,11 +449,11 @@ namespace HammingCodeSimulator
                     }
                     switch (bits[ErrorBitIndex])
                     {
-                        case 1:
-                            bits[ErrorBitIndex] = 0;
+                        case true:
+                            bits[ErrorBitIndex] = false;
                             break;
-                        case 0:
-                            bits[ErrorBitIndex] = 1;
+                        case false:
+                            bits[ErrorBitIndex] = true;
                             break;
                     }
                     RecalculateBits();
